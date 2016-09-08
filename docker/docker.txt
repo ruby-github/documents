@@ -1,0 +1,63 @@
+docker安装
+
+1) 安装ubuntu 16.04 (ubuntu-16.04-desktop-amd64.iso)
+
+2) 更新系统
+
+  (1) Firefox浏览器中设置代理(首选项 -> 高级 -> 网络 -> 连接):
+    手动配置代理(proxy.zte.com.cn:80)
+    不使用代理(localhost,127.0.0.1,192.0.0.0/8,10.0.0.0/8,.zte.com.cn)
+
+  (2) 全局代理设置(系统设置 -> 网络 -> 网络代理): 手动, proxy.zte.com.cn:80
+
+  (3) 启动Firefox浏览器, 连接网络
+
+  (4) 更新系统
+    $ sudo apt update
+
+  (5) 安装openssh-server
+    $ sudo apt install openssh-server
+
+  (6) 升级系统
+    $ sudo apt upgrade
+
+3) 安装需要的软件包
+    $ sudo apt-get install zlib1g-dev libgdbm-dev libreadline-dev libssl-dev bison
+
+4) 安装docker
+
+  (1) 安装apt https传输和CA认证
+    $ sudo apt-get install apt-transport-https ca-certificates
+    $ sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+
+  (2) 增加docker软件源
+    $ sudo vi /etc/apt/sources.list.d/docker.list
+      deb https://apt.dockerproject.org/repo ubuntu-xenial main
+
+  (3) 安装docker
+    $ sudo apt-get update
+
+    $ sudo apt-get purge lxc-docker
+    $ apt-cache policy docker-engine
+
+    $ sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual
+    $ sudo apt-get install docker-engine
+
+  (4) 启动docker服务
+    $ sudo systemctl list-unit-files --type=service
+    $ sudo systemctl enable docker
+
+    $ sudo systemctl start docker
+
+  (5) 配置docker代理
+    $ sudo mkdir /etc/systemd/system/docker.service.d
+    $ sudo vi /etc/systemd/system/docker.service.d/http-proxy.conf
+
+      [Service]
+      Environment="HTTP_PROXY=http://proxy.zte.com.cn:80/" "NO_PROXY=localhost,127.0.0.1,192.0.0.0/8,10.0.0.0/8,.zte.com.cn"
+
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl restart docker
+
+  (6) 测试docker
+    $ sudo docker run hello-world

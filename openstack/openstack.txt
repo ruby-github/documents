@@ -1,0 +1,24 @@
+openstack安装
+
+1) 安装ubuntu 16.04 (ubuntu-16.04-desktop-amd64.iso)
+
+2) 更新系统
+
+  (1) Firefox浏览器中设置代理(首选项 -> 高级 -> 网络 -> 连接):
+    手动配置代理(proxy.zte.com.cn:80)
+    不使用代理(localhost,127.0.0.1,192.0.0.0/8,10.0.0.0/8,.zte.com.cn)
+
+  (2) 全局代理设置(系统设置 -> 网络 -> 网络代理): 手动, proxy.zte.com.cn:80
+
+  (3) 启动Firefox浏览器, 连接网络
+
+  (4) 更新系统
+    $ sudo apt update
+
+  (5) 安装openssh-server
+    $ sudo apt install openssh-server
+
+  (6) 升级系统
+    $ sudo apt upgrade
+
+3) 安装需要的软件包
