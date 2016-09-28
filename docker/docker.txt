@@ -5,7 +5,7 @@ docker安装
 2) 更新系统
 
   (1) Firefox浏览器中设置代理(首选项 -> 高级 -> 网络 -> 连接):
-    手动配置代理(proxy.zte.com.cn:80)
+    手动配置代理(proxynj.zte.com.cn:80)
     不使用代理(localhost,127.0.0.1,.zte.com.cn,10.0.0.0/8,192.0.0.0/8)
 
   (2) 全局代理设置(系统设置 -> 网络 -> 网络代理): 手动, proxy.zte.com.cn:80
