@@ -67,7 +67,7 @@ docker安装
     $ sudo vi /etc/systemd/system/docker.service.d/http-proxy.conf
 
       [Service]
-      Environment="HTTP_PROXY=http://proxy.zte.com.cn:80/" "NO_PROXY=localhost,127.0.0.1,192.0.0.0/8,10.0.0.0/8,.zte.com.cn"
+      Environment="HTTP_PROXY=http://proxynj.zte.com.cn:80/" "NO_PROXY=localhost,127.0.0.1,192.0.0.0/8,10.0.0.0/8,.zte.com.cn"
 
     $ sudo systemctl daemon-reload
     $ sudo systemctl restart docker
