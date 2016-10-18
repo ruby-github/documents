@@ -74,3 +74,23 @@ docker安装
 
   (6) 测试docker
     $ sudo docker run hello-world
+
+5) 安装kubernetes
+  $ wget https://github.com/kubernetes/kubernetes/releases/download/v1.4.0/kubernetes.tar.gz
+
+  $ git clone -b v1.4.0 https://github.com/kubernetes/kubernetes.git
+
+  $ cd kubernetes
+  $ sudo make release
+
+
+
+
+
+  # sudo curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+  $ sudo vi /etc/apt/sources.list.d/kubernetes.list
+    deb http://apt.kubernetes.io/ kubernetes-xenial main
+
+  $ sudo apt-get update
+  $ sudo apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni

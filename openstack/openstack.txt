@@ -5,8 +5,8 @@ openstack安装
 2) 更新系统
 
   (1) Firefox浏览器中设置代理(首选项 -> 高级 -> 网络 -> 连接):
-    手动配置代理(proxy.zte.com.cn:80)
-    不使用代理(localhost,127.0.0.1,192.0.0.0/8,10.0.0.0/8,.zte.com.cn)
+    手动配置代理(proxynj.zte.com.cn:80)
+    不使用代理(localhost,127.0.0.1,.zte.com.cn,10.0.0.0/8,192.0.0.0/8)
 
   (2) 全局代理设置(系统设置 -> 网络 -> 网络代理): 手动, proxy.zte.com.cn:80
 
@@ -20,5 +20,39 @@ openstack安装
 
   (6) 升级系统
     $ sudo apt upgrade
+    $ sudo apt autoremove
 
 3) 安装需要的软件包
+    $ sudo apt-get install samba zlib1g-dev libgdbm-dev libreadline-dev libssl-dev bison
+
+    $ sudo smbpasswd -a user
+
+    $ sudo vi /etc/samba/smb.conf
+      [share]
+        comment = share
+        path = /home/user/share
+        writeable = yes
+        browseable = yes
+        valid users = user
+
+    $ sudo /etc/init.d/smbd restart
+
+4) 安装openstack
+  $ git clone https://github.com/openstack-dev/devstack.git -b stable/newton
+
+
+
+  devstack/tools/create-stack-user.sh
+  # chown -R stack:stack /home/devstack
+# chmod -R 777 /opt/stack
+# su stack
+$ vim devstack/local.conf
+[[local|localrc]]
+ADMIN_PASSWORD=admin
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+
+cd devstack; ./stack.sh
+
+https://git.openstack.org/openstack/requirements
