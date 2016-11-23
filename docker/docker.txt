@@ -5,7 +5,7 @@ docker安装
 2) 更新系统
 
   (1) Firefox浏览器中设置代理(首选项 -> 高级 -> 网络 -> 连接):
-    手动配置代理(proxynj.zte.com.cn:80)
+    手动配置代理(proxy.zte.com.cn:80)
     不使用代理(localhost,127.0.0.1,.zte.com.cn,10.0.0.0/8,192.0.0.0/8)
 
   (2) 全局代理设置(系统设置 -> 网络 -> 网络代理): 手动, proxy.zte.com.cn:80
@@ -50,16 +50,11 @@ docker安装
   (3) 安装docker
     $ sudo apt-get update
 
-    $ sudo apt-get purge lxc-docker
-    $ apt-cache policy docker-engine
-
     $ sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual
     $ sudo apt-get install docker-engine
 
   (4) 启动docker服务
-    $ sudo systemctl list-unit-files --type=service
     $ sudo systemctl enable docker.service
-
     $ sudo systemctl start docker.service
 
   (5) 配置docker代理
@@ -67,7 +62,7 @@ docker安装
     $ sudo vi /etc/systemd/system/docker.service.d/http-proxy.conf
 
       [Service]
-      Environment="HTTP_PROXY=http://proxynj.zte.com.cn:80/" "NO_PROXY=localhost,127.0.0.1,192.0.0.0/8,10.0.0.0/8,.zte.com.cn"
+      Environment="HTTP_PROXY=http://proxy.zte.com.cn:80/" "NO_PROXY=localhost,127.0.0.1,.zte.com.cn,10.0.0.0/8,192.0.0.0/8"
 
     $ sudo systemctl daemon-reload
     $ sudo systemctl restart docker
@@ -75,22 +70,70 @@ docker安装
   (6) 测试docker
     $ sudo docker run hello-world
 
-5) 安装kubernetes
-  $ wget https://github.com/kubernetes/kubernetes/releases/download/v1.4.0/kubernetes.tar.gz
+5) 搭建registry (ip 10.8.9.20:5000)
 
-  $ git clone -b v1.4.0 https://github.com/kubernetes/kubernetes.git
+  (1) 使用docker用户
+    $ su docker
 
-  $ cd kubernetes
-  $ sudo make release
+  (2) 创建目录
+    $ sudo mkdir -p /opt/docker
+    $ sudo chown -R docker:user /opt/docker
 
+    $ cd /opt/docker
+    $ mkdir -p registry/certs
+    $ mkdir -p registry/auth
+    $ mkdir -p registry/data
 
+  (2) 生成用户和密码
+    $ cd /opt/docker/registry
 
+    $ openssl req -newkey rsa:2048 -nodes -sha256 -x509 -days 3650 -subj '/CN=docker-hub/' -keyout certs/registry.key -out certs/registry.crt
+    $ sudo docker run --entrypoint htpasswd registry -Bbn docker docker > auth/htpasswd
 
+  (3) 启动registry
+    $ vi /opt/docker/registry_docker
 
-  # sudo curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+      docker run -d -p 5000:5000 --restart=always --name registry \
+        -v /opt/docker/registry/auth:/auth \
+        -v /opt/docker/registry/certs:/certs \
+        -v /opt/docker/registry/data:/var/lib/registry \
+        -e REGISTRY_AUTH=htpasswd \
+        -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+        -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+        -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/registry.crt \
+        -e REGISTRY_HTTP_TLS_KEY=/certs/registry.key \
+        registry
 
-  $ sudo vi /etc/apt/sources.list.d/kubernetes.list
-    deb http://apt.kubernetes.io/ kubernetes-xenial main
+  (4) 登录registry
+    $ sudo docker login docker-hub:5000
 
-  $ sudo apt-get update
-  $ sudo apt-get install -y docker.io kubelet kubeadm kubectl kubernetes-cni
+  (5) 查看registry
+    https://docker-hub:5000/v2/_catalog
+
+  (6) 停止registry
+    $ sudo docker stop registry
+    $ sudo docker rm registry
+
+  (7) 配置docker client(在docker-hub上)
+    $ sudo vi /etc/hosts
+
+      10.8.9.20	docker-hub
+
+    $ sudo mkdir -p /etc/docker/certs.d/docker-hub:5000
+    $ sudo cp /opt/docker/registry/certs/registry.crt /etc/docker/certs.d/docker-hub:5000
+
+  (8) 配置docker client
+    $ sudo vi /etc/hosts
+
+      10.8.9.20	docker-hub
+
+    $ sudo mkdir -p /etc/docker/certs.d/docker-hub:5000
+    $ sudo scp -r docker@10.8.9.20:/opt/docker/registry/certs/registry.crt /etc/docker/certs.d/docker-hub:5000
+
+6) 启动数据库
+
+  (1) mysql
+    $ sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=mysql -d -p 3306:3306 mariadb
+
+  (2) mssql
+    $ sudo docker run --name mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=admin!1234' -d -p 1433:1433 microsoft/mssql-server-linux
