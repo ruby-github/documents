@@ -130,10 +130,15 @@ docker安装
     $ sudo mkdir -p /etc/docker/certs.d/docker-hub:5000
     $ sudo scp -r docker@10.8.9.20:/opt/docker/registry/certs/registry.crt /etc/docker/certs.d/docker-hub:5000
 
-6) 启动数据库
+6) ui-for-docker
+
+  $ sudo docker run --privileged -v /var/run/docker.sock:/var/run/docker.sock --name ui-for-docker -d -p 80:9000 uifd/ui-for-docker
+
+7) 启动数据库
 
   (1) mysql
     $ sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=mysql -d -p 3306:3306 mariadb
 
   (2) mssql
     $ sudo docker run --name mssql -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=admin!1234' -d -p 1433:1433 microsoft/mssql-server-linux
+    $ sudo docker run --name mssql -d -p 1433:1433 moisei/mssql-server-linux
